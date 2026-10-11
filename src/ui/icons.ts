@@ -1,0 +1,21 @@
+const shapes:Record<string,string>={
+  sword:'<path d="m5 19 4-4m-4-1 5 5m-2-5L18 3l3 0 0 3-11 10m-1-2 2 2"/>',
+  nova:'<path d="m12 2 2.3 6.5L21 12l-6.7 3.5L12 22l-2.3-6.5L3 12l6.7-3.5Z"/><path d="m12 7 1 4 4 1-4 1-1 4-1-4-4-1 4-1Z"/>',
+  dash:'<path d="m4 5 7 7-7 7m8-14 7 7-7 7"/>',
+  tower:'<path d="M5 21V9H3V3h4v3h3V3h4v3h3V3h4v6h-2v12ZM9 21v-6a3 3 0 0 1 6 0v6M5 10h14"/>',
+  banner:'<path d="M5 22V3m0 1h14l-3 5 3 5H5"/>',
+  heart:'<path d="M12 21 3.5 12.5C-2 6 7 1 12 7c5-6 14-1 8.5 5.5Z"/>',
+  bolt:'<path d="m14 2-9 12h6l-1 8 9-12h-6Z"/>',
+  coin:'<path d="m12 2 9 5v10l-9 5-9-5V7Z"/><path d="m12 7 4 5-4 5-4-5Z"/>',
+  pause:'<path d="M8 5v14M16 5v14"/>',
+  fullscreen:'<path d="M9 3H3v6m12-6h6v6M3 15v6h6m12-6v6h-6"/>',
+  windowed:'<path d="M3 9h6V3m6 0v6h6M9 21v-6H3m18 0h-6v6"/>',
+  music:'<path d="M9 18V5l12-3v13M9 8l12-3"/><ellipse cx="6" cy="18" rx="3" ry="2"/><ellipse cx="18" cy="15" rx="3" ry="2"/>',
+  sound:'<path d="m11 4-6 5H2v6h3l6 5ZM15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/>',
+  help:'<circle cx="12" cy="12" r="9"/><path d="M9 9a3 3 0 1 1 4 3v2m-1 3h.01"/>',
+  crown:'<path d="m3 6 4 4 5-7 5 7 4-4-2 12H5ZM5 21h14"/>',
+  flame:'<path d="M13 2c3 6-4 7 0 11 2-2 3-3 3-5 6 7 3 14-4 14-8 0-10-8-5-13-1 4 2 5 3 2 1-3 0-5 3-9Z"/>',
+  frost:'<path d="M12 2v20M3.3 7l17.4 10M3.3 17 20.7 7M8 4l4 4 4-4M8 20l4-4 4 4M3 11l5-1-1-5m14 8-5 1 1 5M7 19l1-5-5-1M17 5l-1 5 5 1"/>',
+  close:'<path d="m6 6 12 12M6 18 18 6"/>',
+};
+export const icon=(name:string)=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${shapes[name]??shapes.nova}</svg>`;

@@ -1,0 +1,55 @@
+import { chromium } from '@playwright/test';
+import { mkdir } from 'node:fs/promises';
+import assert from 'node:assert/strict';
+await mkdir('test-results',{recursive:true});
+const browser=await chromium.launch({headless:true});
+const page=await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1});
+const errors=[];page.on('pageerror',e=>errors.push(e.message));
+async function screenPoint(point){return page.evaluate(p=>{const cam=window.__ASHENWATCH__.scene.cameras.main;return cam.matrix.transformPoint(p.x-cam.scrollX,p.y-cam.scrollY);},point);}
+async function clickWorld(point,button='left'){const p=await screenPoint(point);await page.mouse.click(p.x,p.y,{button});}
+await page.goto('http://127.0.0.1:5174/',{waitUntil:'networkidle'});await page.waitForSelector('canvas');
+await page.screenshot({path:'test-results/title-v02.png'});
+await page.getByRole('button',{name:'Begin the siege'}).click();
+await page.waitForFunction(()=>window.__ASHENWATCH__.model.phase==='playing');
+// The original wide battlefield view is the default.
+await page.waitForFunction(()=>window.__ASHENWATCH__.scene.cameras.main.zoom<1);
+assert.equal(await page.evaluate(()=>window.__ASHENWATCH__.model.camps.length),3);
+assert.equal(await page.evaluate(()=>window.__ASHENWATCH__.model.units.filter(u=>u.kind==='jungleBoss').length),2);
+await clickWorld({x:510,y:600},'right');
+assert.equal(await page.evaluate(()=>window.__ASHENWATCH__.model.order?.kind),'move');
+await page.waitForFunction(()=>window.__ASHENWATCH__.model.hero.y<645);
+const wolf=await page.evaluate(()=>{const u=window.__ASHENWATCH__.model.units.find(u=>u.archetype==='wolf');return {x:u.x,y:u.y-18,id:u.id};});
+await clickWorld(wolf);
+assert.equal(await page.evaluate(()=>window.__ASHENWATCH__.model.order?.targetId),wolf.id);
+await page.waitForFunction(()=>window.__ASHENWATCH__.model.hero.y<610);
+await page.locator('#target-name').filter({hasText:'Briar wolf'}).waitFor();
+await page.screenshot({path:'test-results/hero-command-v02.png'});
+await page.keyboard.press('x');assert.equal(await page.evaluate(()=>window.__ASHENWATCH__.model.order),undefined);
+await page.keyboard.press('f');await clickWorld({x:1000,y:570});
+assert.equal(await page.evaluate(()=>window.__ASHENWATCH__.model.order?.kind),'attackMove');
+await page.keyboard.press('x');
+await page.locator('#jungle-index summary').click();await page.locator('[data-camp="quarry"]').click();
+assert.equal(await page.evaluate(()=>window.__ASHENWATCH__.model.order?.point.x),935);
+await page.keyboard.press('x');
+const boss=await page.evaluate(()=>{const m=window.__ASHENWATCH__.model,b=m.units.find(u=>u.archetype==='stonewarden');for(const u of m.units)if(u.kind==='enemy'||u.campId===b.campId&&u.id!==b.id)u.hp=0;m.waveTimer=10000;m.recruitTimer=10000;m.hero.x=b.x+80;m.hero.y=b.y;m.hero.hp=m.hero.maxHp;m.stop();b.specialCooldown=0;m.issueAttack(b.id);return {x:b.x,y:b.y,id:b.id};});
+await page.waitForFunction(()=>window.__ASHENWATCH__.model.hazards.length>0);
+await clickWorld({x:boss.x+210,y:boss.y},'right');await page.keyboard.press('Shift');
+// Capture after reacting so screenshot rendering cannot consume the dodge window.
+await page.screenshot({path:'test-results/jungle-boss-v02.png'});
+await page.waitForFunction(()=>window.__ASHENWATCH__.model.hazards.length===0);
+assert.equal(await page.evaluate(()=>window.__ASHENWATCH__.model.hero.slow),0,'Boss slam dodged');
+await page.evaluate(id=>{const m=window.__ASHENWATCH__.model,b=m.units.find(u=>u.id===id);m.damage(b,b.hp);},boss.id);
+await page.waitForFunction(()=>window.__ASHENWATCH__.model.artifacts.includes('Stoneheart'));
+await page.locator('#artifacts').filter({hasText:'Stoneheart'}).waitFor();
+if(await page.locator('[data-upgrade="power"]').isVisible())await page.locator('[data-upgrade="power"]').click();
+await page.locator('#jungle-index summary').click();await page.locator('[data-camp="quarry"]').filter({hasText:'RETURNS IN'}).waitFor();
+await page.screenshot({path:'test-results/jungle-reward-v02.png'});
+await page.getByRole('button',{name:'How to play'}).click();await page.getByRole('button',{name:'Start a fresh expedition'}).click();
+await page.setViewportSize({width:390,height:844});await page.waitForTimeout(250);
+await page.screenshot({path:'test-results/jungle-mobile-v02.png'});
+await page.locator('#jungle-index summary').click();await page.locator('[data-camp="briar"]').click();
+assert.equal(await page.evaluate(()=>window.__ASHENWATCH__.model.order?.kind),'move');
+assert.equal(await page.evaluate(()=>window.__ASHENWATCH__.model.order?.point.x),535);
+assert.deepEqual(errors,[],'No browser exceptions');
+console.log('Dota-style browser checks passed: right-click movement, enemy targeting and pursuit, attack-move, stop, camp commands, boss telegraph and dodge, artifact reward, respawn UI, mobile commands.');
+await browser.close();

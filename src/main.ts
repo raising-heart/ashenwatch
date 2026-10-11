@@ -1,0 +1,12 @@
+import Phaser from 'phaser';
+import './style.css';
+import { Siege } from './game/simulation';
+import { BattleScene } from './phaser/BattleScene';
+import { HUD } from './ui/hud';
+import { GameAudio } from './audio/GameAudio';
+let model=new Siege();const audio=new GameAudio();
+let scene:BattleScene;let hud:HUD;
+hud=new HUD(()=>model,age=>{model=new Siege(age);scene.setModel(model);for(const id of ['jungle-index','tower-index'])document.getElementById(id)!.removeAttribute('open');},audio,()=>scene?.suspendInput());
+scene=new BattleScene(model,()=>{audio.update(model);hud.render();},name=>audio.sound(name));
+new Phaser.Game({type:Phaser.AUTO,parent:'battlefield',backgroundColor:'#283f35',scale:{mode:Phaser.Scale.RESIZE,width:window.innerWidth,height:window.innerHeight},render:{antialias:true,roundPixels:false},scene:[scene],input:{mouse:{preventDefaultWheel:false}},audio:{noAudio:true}});
+if(import.meta.env.DEV)(window as unknown as {__ASHENWATCH__:unknown}).__ASHENWATCH__={get model(){return model;},get scene(){return scene;},get audio(){return audio;}};
