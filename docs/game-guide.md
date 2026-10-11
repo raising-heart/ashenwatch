@@ -92,6 +92,8 @@ node tests/animation-browser.mjs
 node tests/siege-browser.mjs
 node tests/fullscreen-browser.mjs
 node tests/audio-browser.mjs
+# Verify the deployed production game:
+node tests/pages-browser.mjs
 ```
 
 Screenshots from the browser test are saved under `test-results/`.

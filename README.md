@@ -4,6 +4,10 @@ An original dark fantasy browser game. Command a hero, defend your citadel acros
 
 Built with **Phaser, TypeScript, and Vite**, with procedural artwork, animated combat, and an original adaptive soundtrack.
 
+## Play online
+
+**[Play Ashenwatch in your browser](https://raising-heart.github.io/ashenwatch/)** — no installation required. Select **Begin the siege** to play and start the music.
+
 ## Run locally
 
 Requires Node.js 20.19+ or 22.12+.
@@ -37,6 +41,8 @@ npm run build
 ```
 
 The build is written to `dist/`. Run `npm run preview` to preview it locally.
+
+GitHub Actions tests, builds, and deploys the game to GitHub Pages on every push to `main`. The deployment builds assets for the `/ashenwatch/` URL; local development continues to use the root URL.
 
 See the [game guide](docs/game-guide.md) for mechanics, architecture, and browser checks. This prototype has one map and hero; it is single-player with no persistent saves.
 
